@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+:root{--brand:#2D2DB8;--brand-l:#E8E8FF;--green:#1D7A3A;--green-l:#E6F4EA;--red:#C0392B;--red-l:#FDE8E8;--amber:#E65100;--amber-l:#FFF3E0;--purple:#7B2FBE;--purple-l:#F3E8FF;--teal:#0E7490;--teal-l:#E0F7FA;--dark:#0F0F1A;--mid:#3A3A5C;--muted:#8888AA;--bg:#F4F4FA;--white:#FFF;--border:#DDDDF0;--shadow:0 2px 16px rgba(45,45,184,0.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);font-size:13px}
+.header{background:var(--dark);padding:0 1.25rem;height:50px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;color:#fff}.logo span{color:#6C6CFF}
+.tabs-bar{display:flex;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:50px;z-index:100}
+.tab{padding:9px 16px;font-size:.78rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);background:var(--brand-l)}
+.page{display:none;padding:1rem}.page.active{display:block}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin-bottom:.75rem}
+.kpi{background:var(--white);border-radius:10px;padding:.8rem 1rem;box-shadow:var(--shadow);border-left:3px solid var(--brand)}
+.kpi.g{border-color:var(--green)}.kpi.r{border-color:var(--red)}.kpi.a{border-color:var(--amber)}.kpi.p{border-color:var(--purple)}.kpi.t{border-color:var(--teal)}
+.kpi-lbl{font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--brand)}
+.kpi.g .kpi-val{color:var(--green)}.kpi.r .kpi-val{color:var(--red)}.kpi.a .kpi-val{color:var(--amber)}.kpi.p .kpi-val{color:var(--purple)}.kpi.t .kpi-val{color:var(--teal)}
+.kpi-sub{font-size:.65rem;color:var(--muted);margin-top:2px}
+.card{background:var(--white);border-radius:12px;box-shadow:var(--shadow);margin-bottom:.75rem;overflow:hidden}
+.card-header{padding:.65rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem}
+.card-body{padding:.75rem 1rem}
+.btn{padding:5px 12px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-outline{background:var(--white);color:var(--brand);border:1.5px solid var(--brand)}.btn-outline:hover{background:var(--brand-l)}
+.btn-green{background:var(--green);color:#fff}.btn-red{background:var(--red);color:#fff}
+.btn-amber{background:var(--amber);color:#fff}.btn-purple{background:var(--purple);color:#fff}
+.btn-sm{padding:4px 8px;font-size:.7rem}
+.btn-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.frow{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.6rem}
+select.fsel{padding:4px 8px;border-radius:7px;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:.75rem;outline:none;background:var(--white)}
+input.search{padding:5px 10px;border-radius:7px;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:.75rem;outline:none;width:180px}
+input.search:focus,select.fsel:focus{border-color:var(--brand)}
+.chip{padding:3px 8px;border-radius:12px;font-size:.7rem;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--mid);transition:all .15s}
+.chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.chip.cr.active{background:var(--red);border-color:var(--red)}
+.chip.ca.active{background:var(--amber);border-color:var(--amber)}
+.chip.cg.active{background:var(--green);border-color:var(--green)}
+.chip.cp.active{background:var(--purple);border-color:var(--purple)}
+.tw{overflow-x:auto;max-height:440px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:.74rem}
+thead th{background:var(--dark);color:#fff;padding:6px 8px;text-align:left;font-weight:500;font-size:.68rem;white-space:nowrap;position:sticky;top:0;z-index:5}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:hover{background:#f8f8ff}
+tbody td{padding:5px 8px;vertical-align:middle}
+tr.oos{background:#FFF5F5}tr.over{background:#FFFBF0}tr.ok{background:#F5FFF8}tr.dead{background:#F8F8F8}
+.badge{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:10px;font-size:.66rem;font-weight:600;white-space:nowrap}
+.b-oos{background:var(--red-l);color:var(--red)}.b-ok{background:var(--green-l);color:var(--green)}
+.b-over{background:var(--amber-l);color:var(--amber)}.b-dead{background:#F0F0F0;color:#888}
+.b-risk{background:#FFE0D0;color:#C05000}.b-promo{background:#FFF0F8;color:#B0006A}
+.abc-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700}
+.abc-A{background:var(--green-l);color:var(--green)}.abc-B{background:var(--brand-l);color:var(--brand)}.abc-C{background:#F0F0F0;color:#888}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bar-lbl{width:130px;font-size:.75rem;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-wrap{flex:1;background:var(--bg);border-radius:3px;height:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.bar-val{font-size:.7rem;color:var(--muted);white-space:nowrap;min-width:80px;text-align:right}
+.alert{border-radius:8px;padding:.5rem .85rem;font-size:.77rem;margin-bottom:.6rem;display:flex;align-items:flex-start;gap:.5rem}
+.alert-warn{background:var(--amber-l);color:var(--amber)}.alert-info{background:var(--brand-l);color:var(--brand)}
+.alert-red{background:var(--red-l);color:var(--red)}.alert-ok{background:var(--green-l);color:var(--green)}
+.region-card{background:var(--white);border-radius:10px;padding:.85rem 1rem;box-shadow:var(--shadow);border-top:3px solid var(--brand)}
+.region-card.r{border-color:var(--red)}.region-card.a{border-color:var(--amber)}.region-card.g{border-color:var(--green)}
+.region-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:.5rem}
+.region-stats{display:flex;flex-direction:column;gap:4px;font-size:.75rem}
+.region-stat{display:flex;justify-content:space-between}
+.region-stat span:last-child{font-weight:600}
+.decision-item{display:flex;gap:.5rem;align-items:flex-start;padding:.5rem;border-radius:8px;margin-bottom:.4rem;border:1px solid var(--border)}
+.decision-item.urgent{border-color:var(--red);background:var(--red-l)}
+.decision-item.warn{border-color:var(--amber);background:var(--amber-l)}
+.decision-item.promo-item{border-color:#B0006A;background:#FFF0F8}
+.d-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.d-body{flex:1}
+.d-title{font-weight:600;font-size:.8rem;margin-bottom:2px}
+.d-meta{font-size:.72rem;color:var(--mid)}
+.d-action{margin-top:4px}
+.toast{position:fixed;bottom:1.25rem;right:1.25rem;background:var(--dark);color:#fff;padding:9px 16px;border-radius:8px;font-size:.8rem;z-index:9999;opacity:0;transform:translateY(6px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">Profit<span>Guard</span> AI <span style="font-size:.65rem;font-weight:400;color:#6C6CFF;margin-left:.5rem">Бренды · Поставщики · Регионы · Маркетинг</span></div>
+  <div style="font-size:.72rem;color:#6C6CFF;background:#6C6CFF22;padding:3px 10px;border-radius:10px">20.04–20.05.2026 · 2 241 SKU</div>
+</div>
+
+<div class="tabs-bar">
+  <button class="tab active" onclick="goTab('brands',this)">🏷️ ABC Брендов</button>
+  <button class="tab" onclick="goTab('suppliers',this)">🚚 ABC Поставщиков</button>
+  <button class="tab" onclick="goTab('regions',this)">🗺️ Замороженные по регионам</button>
+  <button class="tab" onclick="goTab('decisions',this)">⚡ Нужно решение <span style="background:var(--red);color:#fff;border-radius:8px;padding:1px 5px;font-size:.65rem;margin-left:2px">49</span></button>
+  <button class="tab" onclick="goTab('marketing',this)">🎯 Маркетинг & Промо</button>
+</div>
+
+<!-- ══ БРЕНДЫ ══ -->
+<div class="page active" id="page-brands">
+  <div class="frow">
+    <input class="search" id="brandSearch" placeholder="🔍 Поиск бренда..." oninput="renderBrands()">
+    <button class="chip active" onclick="setBrandFilter('all',this)">Все</button>
+    <button class="chip cg" onclick="setBrandFilter('A',this)">A-бренды</button>
+    <button class="chip" onclick="setBrandFilter('B',this)">B-бренды</button>
+    <button class="chip ca" onclick="setBrandFilter('oos',this)">Есть OOS</button>
+    <button class="chip ca" onclick="setBrandFilter('over',this)">Есть Overstock</button>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="brandTitle">ABC-анализ брендов</div>
+      <div class="btn-row"><button class="btn btn-outline btn-sm" onclick="showToast('⬇ Экспорт ABC брендов')">⬇ Excel</button></div>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Бренд</th><th>ABC</th><th>SKU</th>
+          <th>Продажи 30д шт</th><th>ADS/день</th><th>Остаток шт</th><th>Дней запаса</th>
+          <th>OOS</th><th>Overstock</th><th>Dead</th><th>Статус портфеля</th>
+        </tr></thead>
+        <tbody id="brandBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Топ брендов по продажам</div></div>
+      <div class="card-body" id="brandBars"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Замороженный запас по брендам (Overstock)</div></div>
+      <div class="card-body" id="brandFrozenBars"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ПОСТАВЩИКИ ══ -->
+<div class="page" id="page-suppliers">
+  <div class="frow">
+    <input class="search" id="supSearch" placeholder="🔍 Поиск поставщика..." oninput="renderSuppliers()">
+    <button class="chip active" onclick="setSupFilter('all',this)">Все</button>
+    <button class="chip cg" onclick="setSupFilter('A',this)">A-поставщики</button>
+    <button class="chip cr" onclick="setSupFilter('oos',this)">Есть OOS</button>
+    <button class="chip ca" onclick="setSupFilter('over',this)">Есть Overstock</button>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="supTitle">ABC-анализ поставщиков</div>
+      <div class="btn-row"><button class="btn btn-outline btn-sm" onclick="showToast('⬇ Экспорт ABC поставщиков')">⬇ Excel</button></div>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Поставщик</th><th>ABC</th><th>SKU</th>
+          <th>Продажи 30д шт</th><th>Остаток шт</th><th>Дней запаса</th>
+          <th>OOS</th><th>Overstock</th><th>Рекомендация</th>
+        </tr></thead>
+        <tbody id="supBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Продажи по поставщикам (топ-15)</div></div>
+    <div class="card-body" id="supBars"></div>
+  </div>
+</div>
+
+<!-- ══ РЕГИОНЫ ══ -->
+<div class="page" id="page-regions">
+  <div class="alert alert-red">🚨 <strong>Алматы</strong>: 595 тыс шт заморожено (537 SKU). <strong>Астана</strong>: критично — 311 OOS при остатке всего 262 тыс шт.</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.75rem;margin-bottom:.75rem" id="regionCards"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Замороженный запас по регионам (шт)</div></div>
+      <div class="card-body" id="frozenBars"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">OOS-позиции по регионам</div></div>
+      <div class="card-body" id="oosBars"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Сводная таблица по регионам</div></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Регион</th><th>Остаток шт</th><th>Продажи 30д шт</th><th>ADS/день</th><th>Дней запаса</th><th>Frozen шт</th><th>Frozen SKU</th><th>OOS SKU</th><th>Приоритет</th></tr></thead>
+        <tbody id="regionTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ РЕШЕНИЯ ══ -->
+<div class="page" id="page-decisions">
+  <div class="alert alert-red">🚨 <strong>49 SKU</strong> требуют решения немедленно — A и B класс с критичным статусом.</div>
+  <div class="frow">
+    <button class="chip cr active" onclick="setDecFilter('all',this)">Все 49</button>
+    <button class="chip cr" onclick="setDecFilter('oos',this)">🔴 OOS срочно</button>
+    <button class="chip ca" onclick="setDecFilter('over',this)">🟡 Overstock вернуть/промо</button>
+    <button class="chip cp" onclick="setDecFilter('return',this)">↩️ Вернуть поставщику</button>
+  </div>
+  <div id="decisionsList"></div>
+</div>
+
+<!-- ══ МАРКЕТИНГ ══ -->
+<div class="page" id="page-marketing">
+  <div class="alert alert-info">🎯 <strong>243 SKU</strong> — кандидаты на промо. Приоритет: A+B класс с doh > 60 дней. Цель — ускорить оборот, высвободить капитал.</div>
+
+  <div class="kpi-grid">
+    <div class="kpi a"><div class="kpi-lbl">Кандидаты на промо</div><div class="kpi-val">243 SKU</div><div class="kpi-sub">doh > 60 дней</div></div>
+    <div class="kpi r"><div class="kpi-lbl">Вернуть поставщику</div><div class="kpi-val">~85 SKU</div><div class="kpi-sub">C-класс, нет продаж</div></div>
+    <div class="kpi p"><div class="kpi-lbl">Перемещение</div><div class="kpi-val">~120 SKU</div><div class="kpi-sub">overstock в одном, OOS в другом</div></div>
+    <div class="kpi g"><div class="kpi-lbl">Ожидаемый эффект</div><div class="kpi-val">~800К шт</div><div class="kpi-sub">высвобождение заморозки</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
+    <div class="card">
+      <div class="card-header"><div class="card-title">🎯 Промо-план — топ кандидаты</div></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Товар</th><th>Бренд</th><th>ABC</th><th>Остаток</th><th>Дней</th><th>Скидка %</th><th>Тип промо</th></tr></thead>
+          <tbody id="promoBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">↩️ Возврат поставщику — топ кандидаты</div></div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Товар</th><th>Поставщик</th><th>Остаток шт</th><th>Дней запаса</th><th>Причина</th></tr></thead>
+          <tbody id="returnBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">📋 Маркетинговые активности — план по брендам</div></div>
+    <div class="card-body" id="marketingPlan"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+// ══ DATA (реальные данные из файла) ══════════════════════════════════════
+const BRANDS = [
+  {brand:'ВкусОн',abc:'A',sku:29,sales:726650,stock:747736,oos:1,over:9,dead:0},
+  {brand:'ГринПак',abc:'A',sku:4,sales:647500,stock:167000,oos:1,over:0,dead:0},
+  {brand:'DRIVE CAFE',abc:'A',sku:25,sales:353232,stock:509408,oos:3,over:12,dead:0},
+  {brand:'Без бренда',abc:'A',sku:164,sales:111405,stock:113429,oos:12,over:107,dead:4},
+  {brand:'KOKETAI',abc:'A',sku:28,sales:72888,stock:33299,oos:3,over:7,dead:0},
+  {brand:'STARBUCKS',abc:'A',sku:7,sales:49958,stock:18934,oos:4,over:0,dead:0},
+  {brand:'ГАЗПРОМ НЕФТЬ/ МАСЛО',abc:'A',sku:56,sales:46501,stock:217991,oos:2,over:44,dead:0},
+  {brand:'Сегодня',abc:'A',sku:50,sales:44435,stock:25331,oos:8,over:15,dead:1},
+  {brand:'ЧИЗЗИ',abc:'A',sku:31,sales:38432,stock:31954,oos:0,over:9,dead:0},
+  {brand:'STOKSON',abc:'A',sku:17,sales:36540,stock:30637,oos:0,over:1,dead:0},
+  {brand:'DIZZY',abc:'A',sku:6,sales:36219,stock:22322,oos:1,over:2,dead:0},
+  {brand:'GORILLA',abc:'B',sku:8,sales:33866,stock:20762,oos:0,over:2,dead:0},
+  {brand:'Samsapie',abc:'B',sku:2,sales:30360,stock:19400,oos:0,over:0,dead:0},
+  {brand:'Топ Пак',abc:'B',sku:1,sales:25600,stock:1600,oos:1,over:0,dead:0},
+  {brand:'CCA/FUSE TEA',abc:'B',sku:13,sales:23432,stock:12716,oos:0,over:0,dead:0},
+  {brand:'GALANZ/MAXI ЧАЙ',abc:'B',sku:6,sales:20848,stock:2649,oos:5,over:0,dead:0},
+  {brand:'G-DRIVE',abc:'B',sku:28,sales:18061,stock:12184,oos:6,over:15,dead:0},
+  {brand:'BORJOMI',abc:'B',sku:14,sales:18037,stock:13433,oos:0,over:0,dead:0},
+  {brand:'CCA/COCA-COLA',abc:'B',sku:8,sales:17207,stock:7394,oos:2,over:0,dead:0},
+  {brand:'RED BULL',abc:'B',sku:8,sales:14489,stock:7906,oos:0,over:0,dead:0},
+  {brand:'VAN MELLE',abc:'B',sku:32,sales:12388,stock:5994,oos:4,over:4,dead:0},
+  {brand:'MARS/SNIKERS',abc:'C',sku:15,sales:8200,stock:12500,oos:0,over:5,dead:0},
+  {brand:'Beauty СЕПТ',abc:'C',sku:8,sales:500,stock:15200,oos:0,over:6,dead:2},
+];
+BRANDS.forEach(b=>{b.ads=b.sales/30;b.doh=b.ads>0?Math.round(b.stock/b.ads*10)/10:999;});
+
+const SUPPLIERS = [
+  {sup:'Вкус Он Трейд ООО',abc:'A',sku:32,sales:726650,stock:747905,oos:1,over:12},
+  {sup:'Акабер ТОО',abc:'A',sku:4,sales:642000,stock:164000,oos:1,over:0},
+  {sup:'ПРОДИМЕКС ООО',abc:'A',sku:1,sales:161000,stock:136000,oos:0,over:0},
+  {sup:'Ирмас ЛТД ТОО',abc:'A',sku:6,sales:149900,stock:154887,oos:0,over:4},
+  {sup:'ПАПЕРСКОП РУС ООО',abc:'A',sku:11,sales:130340,stock:273953,oos:3,over:6},
+  {sup:'Koketai Distributions ТОО',abc:'A',sku:13,sales:81856,stock:37065,oos:0,over:0},
+  {sup:'Dizzy ТОО',abc:'A',sku:21,sales:62960,stock:37172,oos:1,over:2},
+  {sup:'Первый пивзавод ТОО',abc:'A',sku:22,sales:57204,stock:38429,oos:0,over:2},
+  {sup:'Кока-Кола Алматы Боттлерс ТОО',abc:'A',sku:40,sales:56900,stock:28913,oos:2,over:1},
+  {sup:'Арла Фудс ООО (Starbucks)',abc:'A',sku:7,sales:49958,stock:18934,oos:4,over:0},
+  {sup:'ООО Газпромнефть-СМ',abc:'A',sku:64,sales:47420,stock:218309,oos:6,over:47},
+  {sup:'Фуд Завод ТОО',abc:'B',sku:46,sales:44401,stock:24637,oos:8,over:12},
+  {sup:'SweetPremium ТОО',abc:'B',sku:23,sales:42268,stock:42100,oos:0,over:3},
+  {sup:'Le Grand ТОО',abc:'B',sku:31,sales:38432,stock:31954,oos:0,over:9},
+  {sup:'АЛИДИ ТОО',abc:'B',sku:41,sales:31702,stock:24684,oos:5,over:3},
+  {sup:'TOP PACK ТОО',abc:'B',sku:1,sales:25600,stock:1600,oos:1,over:0},
+  {sup:'Green House Limited ТОО',abc:'B',sku:62,sales:23290,stock:12284,oos:6,over:5},
+  {sup:'FMCG group ТОО',abc:'B',sku:7,sales:22401,stock:13548,oos:0,over:0},
+  {sup:'Арбаша ТОО (Maxi чай)',abc:'B',sku:7,sales:21274,stock:2877,oos:5,over:0},
+  {sup:'Royal Product RK ТОО',abc:'C',sku:35,sales:9500,stock:14200,oos:8,over:18},
+];
+SUPPLIERS.forEach(s=>{s.ads=s.sales/30;s.doh=s.ads>0?Math.round(s.stock/s.ads*10)/10:999;});
+
+const REGIONS = [
+  {name:'Алматы',stock:1111723,sales:1048653,frozen:595586,frozenSku:537,oos:232,color:'var(--brand)'},
+  {name:'Шымкент',stock:227980,sales:248415,frozen:77106,frozenSku:447,oos:176,color:'var(--amber)'},
+  {name:'Астана',stock:261578,sales:756917,frozen:46051,frozenSku:407,oos:311,color:'var(--red)'},
+  {name:'Актобе',stock:85869,sales:129979,frozen:26354,frozenSku:112,oos:19,color:'var(--teal)'},
+  {name:'Атырау',stock:124003,sales:116584,frozen:22917,frozenSku:114,oos:26,color:'var(--green)'},
+  {name:'Кызылорда',stock:65429,sales:49848,frozen:21230,frozenSku:95,oos:36,color:'#B0006A'},
+  {name:'Семей',stock:75542,sales:141291,frozen:12258,frozenSku:91,oos:46,color:'var(--purple)'},
+  {name:'Караганды',stock:187114,sales:234526,frozen:82876,frozenSku:526,oos:118,color:'#777'},
+];
+REGIONS.forEach(r=>{r.ads=r.sales/30;r.doh=r.ads>0?Math.round(r.stock/r.ads*10)/10:999;});
+
+const DECISIONS = [
+  {type:'oos',abc:'A',name:'Уголок-лодочка ГринПак 210х60х60',brand:'ГринПак',sup:'Акабер ТОО',stock:20000,sales:228000,doh:2.6,action:'Срочный дозаказ у Акабер ТОО. ADS=7600/день, запаса на 2.6 дня.'},
+  {type:'oos',abc:'A',name:'Drive Cafe стакан 300мл картонный 1*400шт',brand:'DRIVE CAFE',sup:'ПАПЕРСКОП РУС ООО',stock:8440,sales:40400,doh:6.3,action:'Срочный заказ. Остаток на 6 дней. Проверить заявку у ПАПЕРСКОП.'},
+  {type:'oos',abc:'A',name:'Пакет бумажный Drive Cafe для хот-дога',brand:'DRIVE CAFE',sup:'ПАПЕРСКОП РУС ООО',stock:1000,sales:26000,doh:1.2,action:'КРИТИЧНО. Запас 1.2 дня. Нужен экстренный завоз или переброска.'},
+  {type:'oos',abc:'A',name:'Пакет фасовочный в рулонах 28х38 200шт',brand:'Топ Пак',sup:'TOP PACK ТОО',stock:1600,sales:25600,doh:1.9,action:'Срочный заказ у TOP PACK ТОО. Запас 1.9 дня.'},
+  {type:'oos',abc:'A',name:'Starbucks Cappuccino 220мл',brand:'STARBUCKS',sup:'Арла Фудс ООО',stock:615,sales:10603,doh:1.7,action:'Срочный заказ. Вся линейка Starbucks в критичном OOS риске.'},
+  {type:'oos',abc:'A',name:'Starbucks Caffe Latte 220мл',brand:'STARBUCKS',sup:'Арла Фудс ООО',stock:463,sales:9539,doh:1.5,action:'Вместе с Cappuccino — единый срочный заказ у Арла Фудс.'},
+  {type:'oos',abc:'A',name:'Starbucks Frappuccino Vanilla 0.25л',brand:'STARBUCKS',sup:'Арла Фудс ООО',stock:356,sales:8003,doh:1.3,action:'Критично. Весь портфель Starbucks в OOS риске — комплексный заказ.'},
+  {type:'oos',abc:'A',name:'Starbucks Frappuccino Caramel 0.25л',brand:'STARBUCKS',sup:'Арла Фудс ООО',stock:433,sales:7372,doh:1.8,action:'Единый заказ по всей линейке Starbucks у Арла Фудс.'},
+  {type:'oos',abc:'A',name:'Maxi чай зеленый лимон 1.25л',brand:'GALANZ/MAXI ЧАЙ',sup:'Арбаша ТОО',stock:7,sales:6999,doh:0,action:'Фактически OOS. Весь портфель Maxi Чай в критичном риске.'},
+  {type:'oos',abc:'A',name:'Сыр плавленый Виола Чеддер 140г',brand:'ВкусОн',sup:'Вкус Он Трейд ООО',stock:885,sales:13993,doh:1.9,action:'Срочный заказ у ВкусОн. Запас 1.9 дня.'},
+  {type:'over',abc:'A',name:'Конверт для гамбургера Сибилла 1*1000шт',brand:'ВкусОн',sup:'Вкус Он Трейд ООО',stock:99000,sales:17000,doh:174.7,action:'174 дня запаса. Договориться о возврате или распродать по сети.'},
+  {type:'over',abc:'A',name:'ингр уголок для выпечки Drive Cafe',brand:'DRIVE CAFE',sup:'DOMINANT-print ТОО',stock:37500,sales:10000,doh:112.5,action:'112 дней. Перераспределить по регионам + промо.'},
+  {type:'over',abc:'A',name:'ингр крышка Drive Cafe для стакана 250мл',brand:'DRIVE CAFE',sup:'ПАПЕРСКОП РУС ООО',stock:24000,sales:7000,doh:102.9,action:'103 дня. Перераспределение по регионам где дефицит.'},
+  {type:'return',abc:'B',name:'Пакет бумажный с окном Drive Cafe',brand:'DRIVE CAFE',sup:'ПАПЕРСКОП РУС ООО',stock:98500,sales:4000,doh:738.8,action:'739 дней запаса. Переговоры с ПАПЕРСКОП о возврате партии.'},
+  {type:'return',abc:'B',name:'Масло Газпром Premium L 10W-40 1л',brand:'ГАЗПРОМ НЕФТЬ',sup:'ООО Газпромнефть-СМ',stock:23471,sales:2850,doh:247.1,action:'247 дней. Возврат поставщику + пересмотр объёмов закупки.'},
+  {type:'return',abc:'B',name:'Масло Газпром Super 5W-40 1л',brand:'ГАЗПРОМ НЕФТЬ',sup:'ООО Газпромнефть-СМ',stock:18998,sales:2111,doh:270.0,action:'270 дней. Весь портфель Газпром масла — системная проблема заказа.'},
+  {type:'return',abc:'B',name:'Масло Газпром Moto 2T',brand:'ГАЗПРОМ НЕФТЬ',sup:'ООО Газпромнефть-СМ',stock:14288,sales:2733,doh:156.8,action:'157 дней. Часть вернуть, часть — промо на АЗС.'},
+  {type:'return',abc:'C',name:'Уголок для гамбургеров Drive Cafe',brand:'DRIVE CAFE',sup:'Drive Cafe',stock:108653,sales:0,doh:999,action:'НУЛЕВЫЕ продажи. Срочный возврат поставщику или списание.'},
+  {type:'return',abc:'C',name:'Beauty СЕПТ 80% 60мл',brand:'Beauty СЕПТ',sup:'Beauty СЕПТ',stock:13502,sales:0,doh:999,action:'Нет продаж. Возврат или акция с партнёром.'},
+];
+
+const PROMO_ITEMS = [
+  {name:'Конверт для гамбургера Сибилла',brand:'ВкусОн',abc:'A',stock:99000,sales:17000,doh:175,disc:15,promo:'Bundle 3+1'},
+  {name:'Пакет бумажный с окном Drive Cafe',brand:'DRIVE CAFE',abc:'B',stock:98500,sales:4000,doh:739,disc:30,promo:'Распродажа'},
+  {name:'ингр уголок для выпечки Drive Cafe',brand:'DRIVE CAFE',abc:'A',stock:37500,sales:10000,doh:113,disc:20,promo:'Скидка партнёру'},
+  {name:'Масло Газпром Premium L 10W-40',brand:'ГАЗПРОМ НЕФТЬ',abc:'B',stock:23471,sales:2850,doh:247,disc:25,promo:'Акция АЗС'},
+  {name:'Масло Газпром Super 5W-40',brand:'ГАЗПРОМ НЕФТЬ',abc:'B',stock:18998,sales:2111,doh:270,disc:25,promo:'Акция АЗС'},
+  {name:'Масло Газпром Moto 2T',brand:'ГАЗПРОМ НЕФТЬ',abc:'B',stock:14288,sales:2733,doh:157,disc:20,promo:'Сезонная акция'},
+  {name:'Пакет ГазпромНефть СТМ',brand:'ГПН',abc:'B',stock:10160,sales:3278,doh:93,disc:15,promo:'Скидка 15%'},
+  {name:'Snickers 50.5г 1*48шт',brand:'MARS/SNIKERS',abc:'B',stock:9105,sales:2954,doh:92,disc:10,promo:'2+1 акция'},
+  {name:'ингр крышка Drive Cafe 250мл',brand:'DRIVE CAFE',abc:'A',stock:24000,sales:7000,doh:103,disc:20,promo:'Перераспределение'},
+  {name:'G-Energy Synthetic Far East 5W-30',brand:'ГАЗПРОМ НЕФТЬ',abc:'B',stock:9854,sales:1687,doh:175,disc:30,promo:'Распродажа'},
+];
+
+const RETURN_ITEMS = [
+  {name:'Уголок для гамбургеров Drive Cafe',sup:'Drive Cafe / ДОМИНАНТ',stock:108653,doh:999,reason:'Нулевые продажи 30 дней'},
+  {name:'Пакет с окном Drive Cafe',sup:'ПАПЕРСКОП РУС ООО',stock:98500,doh:739,reason:'739 дней запаса'},
+  {name:'Beauty СЕПТ 80% 60мл',sup:'Beauty СЕПТ',stock:13502,doh:999,reason:'Нулевые продажи'},
+  {name:'Масло Газпром Premium N 5W-40',sup:'ООО Газпромнефть-СМ',stock:19283,doh:519,reason:'519 дней запаса'},
+  {name:'Масло Газпром Super 5W-40',sup:'ООО Газпромнефть-СМ',stock:18998,doh:270,reason:'270 дней запаса'},
+  {name:'Масло Газпром Super 15W-40',sup:'ООО Газпромнефть-СМ',stock:10045,doh:282,reason:'282 дня запаса'},
+  {name:'Масло Газпром Premium L 10W-40',sup:'ООО Газпромнефть-СМ',stock:23471,doh:247,reason:'247 дней запаса'},
+  {name:'Смазка Литол-24 300г',sup:'ООО Газпромнефть-СМ',stock:3781,doh:853,reason:'853 дня запаса'},
+];
+
+// ══ FILTERS ══
+let brandFilter='all', supFilter='all', decFilter='all';
+
+// ══ RENDER BRANDS ══
+function renderBrands(){
+  const s=document.getElementById('brandSearch').value.toLowerCase();
+  let rows=[...BRANDS];
+  if(s) rows=rows.filter(r=>r.brand.toLowerCase().includes(s));
+  if(brandFilter==='A') rows=rows.filter(r=>r.abc==='A');
+  if(brandFilter==='B') rows=rows.filter(r=>r.abc==='B');
+  if(brandFilter==='oos') rows=rows.filter(r=>r.oos>0);
+  if(brandFilter==='over') rows=rows.filter(r=>r.over>0);
+  document.getElementById('brandTitle').textContent=`ABC-анализ брендов — ${rows.length}`;
+
+  const getPortfolio=r=>{
+    if(r.oos>0&&r.over>0) return {cls:'b-risk',t:'⚠️ OOS + Overstock'};
+    if(r.oos>0&&r.abc==='A') return {cls:'b-oos',t:'🔴 OOS критично'};
+    if(r.over>r.sku*0.5) return {cls:'b-over',t:'🟡 Много overstock'};
+    if(r.abc==='A'&&r.oos===0) return {cls:'b-ok',t:'🟢 A-класс, норма'};
+    return {cls:'b-ok',t:'🟢 OK'};
+  };
+
+  document.getElementById('brandBody').innerHTML=rows.map((r,i)=>{
+    const p=getPortfolio(r);
+    const rowCls=r.oos>0&&r.abc==='A'?'oos':r.over>r.sku*0.5?'over':'';
+    return`<tr class="${rowCls}">
+      <td style="color:var(--muted)">${i+1}</td>
+      <td style="font-weight:600">${r.brand}</td>
+      <td><span class="abc-pill abc-${r.abc}">${r.abc}</span></td>
+      <td style="text-align:center">${r.sku}</td>
+      <td style="text-align:right;font-weight:600">${r.sales.toLocaleString('ru')}</td>
+      <td style="text-align:center">${r.ads.toFixed(0)}</td>
+      <td style="text-align:right">${r.stock.toLocaleString('ru')}</td>
+      <td style="text-align:center;color:${r.doh<14?'var(--red)':r.doh>90?'var(--amber)':'inherit'};font-weight:${r.doh<14||r.doh>90?700:400}">${r.doh===999?'∞':r.doh}</td>
+      <td style="text-align:center;color:${r.oos>0?'var(--red)':'var(--muted)'};font-weight:${r.oos>0?700:400}">${r.oos||'—'}</td>
+      <td style="text-align:center;color:${r.over>0?'var(--amber)':'var(--muted)'};font-weight:${r.over>0?700:400}">${r.over||'—'}</td>
+      <td style="text-align:center;color:${r.dead>0?'#888':'var(--muted)'}">${r.dead||'—'}</td>
+      <td><span class="badge ${p.cls}">${p.t}</span></td>
+    </tr>`;
+  }).join('');
+
+  const maxSales=Math.max(...BRANDS.map(b=>b.sales));
+  const maxFrozen=Math.max(...BRANDS.filter(b=>b.over>0).map(b=>b.stock));
+  document.getElementById('brandBars').innerHTML=BRANDS.slice(0,12).map(b=>`
+    <div class="bar-row">
+      <div class="bar-lbl" title="${b.brand}">${b.brand}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${(b.sales/maxSales*100).toFixed(0)}%;background:${b.abc==='A'?'var(--green)':b.abc==='B'?'var(--brand)':'#CCC'}"></div></div>
+      <div class="bar-val">${(b.sales/1000).toFixed(0)}К шт</div>
+    </div>`).join('');
+
+  document.getElementById('brandFrozenBars').innerHTML=BRANDS.filter(b=>b.over>0&&b.stock>1000).sort((a,b)=>b.stock-a.stock).slice(0,8).map(b=>`
+    <div class="bar-row">
+      <div class="bar-lbl" title="${b.brand}">${b.brand}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${(b.stock/maxFrozen*100).toFixed(0)}%;background:var(--amber)"></div></div>
+      <div class="bar-val">${(b.stock/1000).toFixed(0)}К · ${b.over}SKU</div>
+    </div>`).join('');
+}
+function setBrandFilter(f,btn){brandFilter=f;document.querySelectorAll('#page-brands .chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderBrands();}
+
+// ══ RENDER SUPPLIERS ══
+function renderSuppliers(){
+  const s=document.getElementById('supSearch').value.toLowerCase();
+  let rows=[...SUPPLIERS];
+  if(s) rows=rows.filter(r=>r.sup.toLowerCase().includes(s));
+  if(supFilter==='A') rows=rows.filter(r=>r.abc==='A');
+  if(supFilter==='oos') rows=rows.filter(r=>r.oos>0);
+  if(supFilter==='over') rows=rows.filter(r=>r.over>0);
+  document.getElementById('supTitle').textContent=`ABC поставщиков — ${rows.length}`;
+
+  const getRec=r=>{
+    if(r.oos>0&&r.abc==='A') return '🚨 Срочный заказ';
+    if(r.over>r.sku*0.5) return '↩️ Переговоры о возврате';
+    if(r.doh>120) return '⚠️ Пересмотр объёмов';
+    if(r.abc==='A'&&r.oos===0) return '✅ Контроль по плану';
+    return '📊 Мониторинг';
+  };
+
+  document.getElementById('supBody').innerHTML=rows.map((r,i)=>`
+    <tr class="${r.oos>0&&r.abc==='A'?'oos':r.over>r.sku*0.4?'over':''}">
+      <td style="color:var(--muted)">${i+1}</td>
+      <td style="font-weight:600;max-width:180px">${r.sup}</td>
+      <td><span class="abc-pill abc-${r.abc}">${r.abc}</span></td>
+      <td style="text-align:center">${r.sku}</td>
+      <td style="text-align:right;font-weight:600">${r.sales.toLocaleString('ru')}</td>
+      <td style="text-align:right">${r.stock.toLocaleString('ru')}</td>
+      <td style="text-align:center;color:${r.doh>120?'var(--red)':r.doh<14?'var(--amber)':'inherit'};font-weight:${r.doh>120||r.doh<14?700:400}">${r.doh===999?'∞':r.doh}</td>
+      <td style="text-align:center;color:${r.oos>0?'var(--red)':'var(--muted)'};font-weight:${r.oos>0?700:400}">${r.oos||'—'}</td>
+      <td style="text-align:center;color:${r.over>0?'var(--amber)':'var(--muted)'};font-weight:${r.over>0?700:400}">${r.over||'—'}</td>
+      <td style="font-size:.72rem;color:var(--mid)">${getRec(r)}</td>
+    </tr>`).join('');
+
+  const maxS=Math.max(...SUPPLIERS.map(s=>s.sales));
+  document.getElementById('supBars').innerHTML=SUPPLIERS.slice(0,15).map(s=>`
+    <div class="bar-row">
+      <div class="bar-lbl" style="width:200px" title="${s.sup}">${s.sup.substring(0,25)}${s.sup.length>25?'…':''}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${(s.sales/maxS*100).toFixed(0)}%;background:${s.abc==='A'?'var(--green)':s.abc==='B'?'var(--brand)':'#CCC'}"></div></div>
+      <div class="bar-val">${(s.sales/1000).toFixed(0)}К · <span class="abc-pill abc-${s.abc}" style="font-size:.62rem;padding:1px 5px">${s.abc}</span></div>
+    </div>`).join('');
+}
+function setSupFilter(f,btn){supFilter=f;document.querySelectorAll('#page-suppliers .chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderSuppliers();}
+
+// ══ RENDER REGIONS ══
+function renderRegions(){
+  const maxFr=Math.max(...REGIONS.map(r=>r.frozen));
+  const maxOos=Math.max(...REGIONS.map(r=>r.oos));
+
+  document.getElementById('regionCards').innerHTML=REGIONS.sort((a,b)=>b.frozen-a.frozen).map(r=>{
+    const cls=r.oos>200?'r':r.oos>50?'a':'g';
+    const doh=r.ads>0?(r.stock/r.ads).toFixed(0):999;
+    return`<div class="region-card ${cls}">
+      <div class="region-name">${r.name}</div>
+      <div class="region-stats">
+        <div class="region-stat"><span>Остаток:</span><span>${(r.stock/1000).toFixed(0)}К шт</span></div>
+        <div class="region-stat"><span>Продажи 30д:</span><span>${(r.sales/1000).toFixed(0)}К шт</span></div>
+        <div class="region-stat"><span>Заморожено:</span><span style="color:var(--amber)">${(r.frozen/1000).toFixed(0)}К шт (${r.frozenSku} SKU)</span></div>
+        <div class="region-stat"><span>OOS позиций:</span><span style="color:${r.oos>200?'var(--red)':r.oos>50?'var(--amber)':'var(--green)'}">${r.oos}</span></div>
+        <div class="region-stat"><span>Дней запаса:</span><span style="color:${doh<14?'var(--red)':'inherit'}">${doh} дн</span></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('frozenBars').innerHTML=REGIONS.sort((a,b)=>b.frozen-a.frozen).map(r=>`
+    <div class="bar-row">
+      <div class="bar-lbl">${r.name}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${(r.frozen/maxFr*100).toFixed(0)}%;background:${r.color}"></div></div>
+      <div class="bar-val">${(r.frozen/1000).toFixed(0)}К · ${r.frozenSku}SKU</div>
+    </div>`).join('');
+
+  document.getElementById('oosBars').innerHTML=REGIONS.sort((a,b)=>b.oos-a.oos).map(r=>`
+    <div class="bar-row">
+      <div class="bar-lbl">${r.name}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${(r.oos/maxOos*100).toFixed(0)}%;background:${r.oos>200?'var(--red)':r.oos>50?'var(--amber)':'var(--green)'}"></div></div>
+      <div class="bar-val" style="color:${r.oos>200?'var(--red)':r.oos>50?'var(--amber)':'var(--green)'};font-weight:${r.oos>200?700:400}">${r.oos} SKU</div>
+    </div>`).join('');
+
+  document.getElementById('regionTable').innerHTML=REGIONS.sort((a,b)=>b.oos-a.oos).map(r=>{
+    const doh=r.ads>0?(r.stock/r.ads).toFixed(0):999;
+    const priority=r.oos>200?'🔴 Критично':r.oos>50?'🟡 Внимание':'🟢 Норма';
+    return`<tr>
+      <td style="font-weight:600">${r.name}</td>
+      <td style="text-align:right">${r.stock.toLocaleString('ru')}</td>
+      <td style="text-align:right">${r.sales.toLocaleString('ru')}</td>
+      <td style="text-align:center">${r.ads.toFixed(0)}</td>
+      <td style="text-align:center;color:${doh<14?'var(--red)':'inherit'};font-weight:${doh<14?700:400}">${doh} дн</td>
+      <td style="text-align:right;color:var(--amber);font-weight:600">${r.frozen.toLocaleString('ru')}</td>
+      <td style="text-align:center;color:var(--amber)">${r.frozenSku}</td>
+      <td style="text-align:center;color:${r.oos>200?'var(--red)':r.oos>50?'var(--amber)':'var(--green)'};font-weight:600">${r.oos}</td>
+      <td>${priority}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══ RENDER DECISIONS ══
+function renderDecisions(){
+  let rows=[...DECISIONS];
+  if(decFilter==='oos') rows=rows.filter(r=>r.type==='oos');
+  if(decFilter==='over') rows=rows.filter(r=>r.type==='over');
+  if(decFilter==='return') rows=rows.filter(r=>r.type==='return');
+
+  document.getElementById('decisionsList').innerHTML=rows.map(r=>{
+    const cls=r.type==='oos'?'urgent':r.type==='return'?'promo-item':'warn';
+    const icon=r.type==='oos'?'🚨':r.type==='return'?'↩️':'🟡';
+    const label=r.type==='oos'?'OOS — СРОЧНЫЙ ЗАКАЗ':r.type==='return'?'ВЕРНУТЬ ПОСТАВЩИКУ':'OVERSTOCK — ПРИНЯТЬ РЕШЕНИЕ';
+    const labelCls=r.type==='oos'?'b-oos':r.type==='return'?'b-promo':'b-over';
+    return`<div class="decision-item ${cls}">
+      <div class="d-icon">${icon}</div>
+      <div class="d-body">
+        <div class="d-title">${r.name}</div>
+        <div class="d-meta">
+          <span class="abc-pill abc-${r.abc}">${r.abc}</span>
+          <span style="margin-left:6px">${r.brand}</span>
+          <span style="margin-left:6px;color:var(--muted)">· ${r.sup}</span>
+          <span style="margin-left:8px">Остаток: <b>${r.stock.toLocaleString('ru')} шт</b></span>
+          <span style="margin-left:8px">Дней: <b style="color:${r.doh<7?'var(--red)':r.doh>90?'var(--amber)':'inherit'}">${r.doh===999?'∞':r.doh}</b></span>
+        </div>
+        <div class="d-action">
+          <span class="badge ${labelCls}">${label}</span>
+          <span style="margin-left:8px;font-size:.75rem;color:var(--mid)">${r.action}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function setDecFilter(f,btn){decFilter=f;document.querySelectorAll('#page-decisions .chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderDecisions();}
+
+// ══ RENDER MARKETING ══
+function renderMarketing(){
+  document.getElementById('promoBody').innerHTML=PROMO_ITEMS.map(r=>`
+    <tr class="over">
+      <td style="font-weight:600;max-width:150px">${r.name}</td>
+      <td>${r.brand}</td>
+      <td><span class="abc-pill abc-${r.abc}">${r.abc}</span></td>
+      <td style="text-align:right;color:var(--amber);font-weight:600">${r.stock.toLocaleString('ru')}</td>
+      <td style="text-align:center;color:${r.doh>180?'var(--red)':'var(--amber)'}"><b>${r.doh}</b></td>
+      <td style="text-align:center;color:#B0006A;font-weight:700">${r.disc}%</td>
+      <td><span class="badge b-promo">${r.promo}</span></td>
+    </tr>`).join('');
+
+  document.getElementById('returnBody').innerHTML=RETURN_ITEMS.map(r=>`
+    <tr class="over">
+      <td style="font-weight:600;max-width:150px">${r.name}</td>
+      <td style="font-size:.7rem;color:var(--mid)">${r.sup}</td>
+      <td style="text-align:right;color:var(--amber);font-weight:600">${r.stock.toLocaleString('ru')}</td>
+      <td style="text-align:center;color:var(--red);font-weight:700">${r.doh===999?'∞':r.doh} дн</td>
+      <td style="font-size:.72rem;color:var(--mid)">${r.reason}</td>
+    </tr>`).join('');
+
+  document.getElementById('marketingPlan').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      ${[
+        {brand:'STARBUCKS',action:'Срочный заказ у Арла Фудс на всю линейку (4 SKU в OOS риске <2 дней). Согласовать приоритетную доставку.',priority:'🔴 Срочно сегодня',icon:'☕'},
+        {brand:'DRIVE CAFE',action:'Разделить: OOS позиции — заказать срочно. Overstock (уголок, пакеты) — переговоры с ПАПЕРСКОП о возврате или промо для клиентов сети.',priority:'🔴 Срочно',icon:'☕'},
+        {brand:'ГАЗПРОМ НЕФТЬ',action:'Весь портфель (56 SKU, 218К шт, 140 дней запаса) — системная проблема. Встреча с Газпромнефть-СМ о графике возврата и пересмотре объёмов.',priority:'🟡 На этой неделе',icon:'⛽'},
+        {brand:'GALANZ/MAXI ЧАЙ',action:'Весь портфель Maxi Чай в OOS (5 из 6 SKU). Срочный заказ у Арбаша ТОО на все позиции.',priority:'🔴 Срочно',icon:'🍵'},
+        {brand:'ВкусОн',action:'Конверт Сибилла (99К шт, 175 дней) — переговоры о возврате. Сыр Виола (OOS риск 1.9 дня) — срочный заказ.',priority:'🟡 На неделе',icon:'🍔'},
+        {brand:'Без бренда (C-класс)',action:'107 SKU в overstocke без бренда — аудит и массовое списание/возврат. Высвободит ~100К шт заморозки.',priority:'⚪ Плановая работа',icon:'📦'},
+      ].map(p=>`
+        <div style="border:1px solid var(--border);border-radius:8px;padding:.75rem">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+            <span style="font-size:1.2rem">${p.icon}</span>
+            <span style="font-weight:600;font-size:.85rem">${p.brand}</span>
+            <span class="badge ${p.priority.includes('🔴')?'b-oos':p.priority.includes('🟡')?'b-over':'b-dead'}" style="margin-left:auto">${p.priority}</span>
+          </div>
+          <div style="font-size:.78rem;color:var(--mid);line-height:1.5">${p.action}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function goTab(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='brands') renderBrands();
+  if(name==='suppliers') renderSuppliers();
+  if(name==='regions') renderRegions();
+  if(name==='decisions') renderDecisions();
+  if(name==='marketing') renderMarketing();
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+renderBrands();
+</script>
+</body>
+</html>
